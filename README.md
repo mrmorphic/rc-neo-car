@@ -13,3 +13,9 @@ The project is split into two Arduino projects:
  	nunchuck, and sending these to the car via a cheap 433MHz wireless transmitter. It is battery powered.
  *	car - this is the code for the car itself. It consists of the car, an arduino with a 433MHz receiver, and powered by a lipo.
  	Additional sensors may be added over time to give the car semi-autonomous behaviour.
+
+Authors: Mark Stephens, Ben Ellis
+
+Copyright (C) Mark Stephens 2013
+
+Licence: BSD
