@@ -1,49 +1,39 @@
-#include <math.h>
-
-#include "Wire.h"
-#include "WiiChuck.h"
-
-#define MAXANGLE 90
-#define MINANGLE -90
-
+#include <Wire.h>
+#include <WiiChuck.h>
+#include "VirtualWire.h"
+#include "packet.h"
 
 WiiChuck chuck = WiiChuck();
-int angleStart, currentAngle;
-int tillerStart = 0;
-double angle;
 
 void setup() {
-  //nunchuck_init();
-  Serial.begin(115200);
-  chuck.begin();
-  chuck.update();
-  //chuck.calibrateJoy();
+	// set up wireless transmitter
+	vw_set_ptt_inverted(true);
+	vw_set_tx_pin(12);
+	vw_setup(2000);
+
+	// set up the nunchuck
+	chuck.begin();
+	chuck.update();
+	//chuck.calibrateJoy();
+    Serial.begin(115200);
 }
 
+// This is a struct containing all the values we'll transmit.
+nunchuck_data buffer;
 
 void loop() {
-  delay(20);
-  chuck.update(); 
+	// update from the nunchuck
+	delay(20);
+	chuck.update(); 
 
-  Serial.print(chuck.readJoyX());
-    Serial.print(", "); 
-    
-  Serial.print(chuck.readJoyY());
-    Serial.print(", "); 
+	// grab the values from the nunchuck into the buffer.
+	buffer.joy_x = chuck.readJoyX();
+	buffer.joy_y = chuck.readJoyY();
+	buffer.roll = chuck.readRoll();
+	buffer.pitch = chuck.readPitch();
+	buffer.z_pressed = chuck.zPressed();
+	buffer.c_pressed = chuck.cPressed();
 
-  Serial.print(chuck.readRoll());
-    Serial.print(", "); 
-    
-  Serial.print(chuck.readPitch());
-    Serial.print  (", ");  
-
-    Serial.print((int)chuck.readAccelX()); 
-    Serial.print(", ");  
-    Serial.print((int)chuck.readAccelY()); 
-    Serial.print(", ");  
-
-    Serial.print((int)chuck.readAccelZ()); 
-
-    Serial.println();
-
+	vw_send((uint8_t *) (&buffer), sizeof(nunchuck_data));
+	vw_wait_tx();
 }
